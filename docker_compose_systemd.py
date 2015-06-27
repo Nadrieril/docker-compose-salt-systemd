@@ -11,6 +11,8 @@ RestartSec=10s
 ExecStartPre=-/usr/bin/docker kill {container_name}
 ExecStartPre=-/usr/bin/docker rm {container_name}
 ExecStart=/usr/bin/docker run --rm --name "{container_name}" \\
+        --label "com.docker.compose.project={project}" --label "com.docker.compose.service={service}" \\
+        --label "com.docker.compose.container-number=1" \\
         {args} \\
         {image}
 ExecStop=/usr/bin/docker stop {container_name}
@@ -45,7 +47,7 @@ DOCKER_CONFIG_KEYS = [
     # 'read_only',
     'hostname',
     'image',
-    'labels',
+    'label',
     'links',
     'mem_limit',
     'net',
