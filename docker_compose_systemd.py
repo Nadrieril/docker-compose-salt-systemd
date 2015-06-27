@@ -139,6 +139,13 @@ def _mount_volumes_at_path(project, volume_mount_path):
 
 def _generate_units(project_name, project):
     def convert_option_to_param(opt, value):
+        if opt == 'volumes_from':
+            value = CTNR_NAME.format(project=project_name, service=value)
+        elif opt == 'links':
+            value = value.split(":")
+            value[0] = CTNR_NAME.format(project=project_name, service=value[0])
+            value = ':'.join(value)
+
         param = '--' + opt.replace('_', '-')
         param = KEYS_OPTION_MAP.get(opt, param)
         return '%s "%s"' % (param, value)
