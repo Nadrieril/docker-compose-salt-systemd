@@ -12,7 +12,8 @@ ExecStartPre=-/usr/bin/docker kill {container_name}
 ExecStartPre=-/usr/bin/docker rm {container_name}
 ExecStart=/usr/bin/docker run --rm --name "{container_name}" \\
         --label "com.docker.compose.project={project}" --label "com.docker.compose.service={service}" \\
-        --label "com.docker.compose.container-number=1" \\
+        --label "com.docker.compose.container-number=1" --label "com.docker.compose.oneoff=False" \\
+        --label "com.docker.compose.config-hash=x" --label "com.docker.compose.version=1.3.1" \\
         {args} \\
         {image}
 ExecStop=/usr/bin/docker stop {container_name}
