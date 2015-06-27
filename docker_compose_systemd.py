@@ -22,11 +22,25 @@ ExecStopPost=-/usr/bin/docker rm {container_name}
 WantedBy=multi-user.target
 """
 
+UNIT_NAME = "{project}-{service}.docker-compose.service"
 DEPENDENCY_TEMPLATE = "After={unit}\nRequires={unit}"
+
+
+TARGET_TEMPLATE = """[Unit]
+Description=Run {project}
+{requires}
+
+[Install]
+WantedBy=multi-user.target
+{also}
+"""
+TARGET_NAME = "{project}.docker-compose.target"
+
+REQUIRES_TEMPLATE = "Requires={unit}"
+ALSO_TEMPLATE = "Also={unit}"
 
 IMG_NAME = "{project}-{service}"
 CTNR_NAME = "{project}-{service}-1"
-UNIT_NAME = "{project}-{service}.docker-compose.service"
 
 
 DOCKER_CONFIG_KEYS = [
@@ -173,6 +187,12 @@ def _generate_units(project_name, project):
         units[outfile] = UNIT_TEMPLATE.format(project=project_name, service=service_name, \
                                                 container_name=container_name, image=image, \
                                                 args=' '.join(args), dependencies=dependencies)
+
+    all_units = set(units.keys())
+    target_file = TARGET_NAME.format(project=project_name)
+    also = '\n'.join(ALSO_TEMPLATE.format(unit=u) for u in all_units)
+    requires = '\n'.join(REQUIRES_TEMPLATE.format(unit=u) for u in all_units)
+    units[target_file] = TARGET_TEMPLATE.format(project=project_name, requires=requires, also=also)
 
     return units
 
