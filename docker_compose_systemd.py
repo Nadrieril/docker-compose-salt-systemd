@@ -88,7 +88,9 @@ ALLOWED_KEYS = DOCKER_CONFIG_KEYS + [
 
 KEYS_OPTION_MAP = {
     'extra_hosts': '--add-host',
-    'environment': '--env'
+    'environment': '--env',
+    'volumes': '--volume',
+    'port': '-p'
 }
 
 def _load_yaml(filename, *args, **kwargs):
@@ -143,12 +145,20 @@ def _generate_units(project_name, project):
         if opt == 'volumes_from':
             value = CTNR_NAME.format(project=project_name, service=value)
         elif opt == 'links':
+            opt = "link"
             value = value.split(":")
             value[0] = CTNR_NAME.format(project=project_name, service=value[0])
             value = ':'.join(value)
+        elif opt == 'ports':
+            if ':' in value:
+                opt = 'port'
+            else:
+                opt = 'expose'
 
-        param = '--' + opt.replace('_', '-')
-        param = KEYS_OPTION_MAP.get(opt, param)
+        if opt in KEYS_OPTION_MAP:
+            param = KEYS_OPTION_MAP[opt]
+        else:
+            param = '--' + opt.replace('_', '-')
         return '%s "%s"' % (param, value)
 
     units = {}
