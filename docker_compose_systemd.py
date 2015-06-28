@@ -40,8 +40,8 @@ TARGET_NAME = "{project}.docker-compose.target"
 REQUIRES_TEMPLATE = "Requires={unit}"
 ALSO_TEMPLATE = "Also={unit}"
 
-IMG_NAME = "{project}-{service}"
-CTNR_NAME = "{project}-{service}-1"
+IMG_NAME = "{project}_{service}"
+CTNR_NAME = "{project}_{service}_1"
 
 
 DOCKER_CONFIG_KEYS = [
