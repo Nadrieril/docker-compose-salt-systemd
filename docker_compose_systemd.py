@@ -178,7 +178,7 @@ def _generate_units(project_name, project):
         units[outfile] = UNIT_TEMPLATE.render(project=project_name, service=service_name, \
                                                 container_name=container_name, image=image, \
                                                 args=args, dependencies=dependencies, \
-                                                target_file=target_file) + '\n'
+                                                target_file=target_file, oneshot=False) + '\n'
 
     all_units = units.keys()
     units[target_file] = TARGET_TEMPLATE.render(project=project_name, units=all_units) + '\n'

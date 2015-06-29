@@ -8,9 +8,13 @@ PartOf={{target_file}}
 
 
 [Service]
+{%- if oneshot %}
+Type=oneshot
+{% else %}
 Type=simple
 Restart=always
 RestartSec=60s
+{%- endif %}
 
 ExecStartPre=-/usr/bin/docker kill {{container_name}}
 ExecStartPre=-/usr/bin/docker rm {{container_name}}
