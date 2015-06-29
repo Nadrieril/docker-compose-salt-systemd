@@ -4,6 +4,7 @@ Description=Run {{container_name}}
 After={{unit}}
 Requires={{unit}}
 {%- endfor %}
+PartOf={{target_file}}
 
 
 [Service]
@@ -23,4 +24,4 @@ ExecStop=/usr/bin/docker stop {{container_name}}
 ExecStopPost=-/usr/bin/docker rm {{container_name}}
 
 [Install]
-WantedBy=multi-user.target
+WantedBy={{target_file}}

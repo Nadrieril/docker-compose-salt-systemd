@@ -133,6 +133,8 @@ def _generate_units(project_name, project):
             param = '--' + opt.replace('_', '-')
         return '%s "%s"' % (param, value)
 
+    target_file = TARGET_NAME.format(project=project_name)
+
     units = {}
     for service_name, config in project.items():
         outfile = UNIT_NAME.format(project=project_name, service=service_name)
@@ -175,10 +177,10 @@ def _generate_units(project_name, project):
 
         units[outfile] = UNIT_TEMPLATE.render(project=project_name, service=service_name, \
                                                 container_name=container_name, image=image, \
-                                                args=args, dependencies=dependencies) + '\n'
+                                                args=args, dependencies=dependencies, \
+                                                target_file=target_file) + '\n'
 
     all_units = units.keys()
-    target_file = TARGET_NAME.format(project=project_name)
     units[target_file] = TARGET_TEMPLATE.render(project=project_name, units=all_units) + '\n'
 
     return units
