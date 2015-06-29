@@ -188,8 +188,12 @@ def _generate_units(project_name, project):
 if __name__ == '__main__':
     filename = "test/docker-compose.yml"
     project = _load_yaml(filename)
-    project_name = 'test'
-    override = {}
+    project_name = 'chocapix'
+    override = {
+        "nginx": {
+            "ports": ["13520:8000"]
+        }
+    }
 
     _check_host_dependencies(project)
     _combine_project_override(project, override)
