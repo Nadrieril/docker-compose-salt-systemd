@@ -1,5 +1,7 @@
 db:
   image: mysql
+  volumes:
+    - /var/lib/mysql
   environment:
     - MYSQL_ROOT_PASSWORD=root
     - MYSQL_DATABASE=django
