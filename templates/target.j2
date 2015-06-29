@@ -1,0 +1,11 @@
+[Unit]
+Description=Run {{project}}
+{%- for unit in units %}
+Requires={{unit}}
+{%- endfor %}
+
+[Install]
+WantedBy=multi-user.target
+{%- for unit in units %}
+Also={{unit}}
+{%- endfor %}

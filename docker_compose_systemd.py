@@ -1,44 +1,16 @@
 import os
 import yaml
+from jinja2 import Environment, FileSystemLoader
 
-UNIT_TEMPLATE = """[Unit]
-Description=Run {container_name}
-{dependencies}
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+j2_env = Environment(loader=FileSystemLoader(os.path.join(ROOT_DIR, 'templates')))
 
-[Service]
-Restart=always
-RestartSec=10s
-ExecStartPre=-/usr/bin/docker kill {container_name}
-ExecStartPre=-/usr/bin/docker rm {container_name}
-ExecStart=/usr/bin/docker run --rm --name "{container_name}" \\
-        --label "com.docker.compose.project={project}" --label "com.docker.compose.service={service}" \\
-        --label "com.docker.compose.container-number=1" --label "com.docker.compose.oneoff=False" \\
-        --label "com.docker.compose.config-hash=x" --label "com.docker.compose.version=1.3.1" \\
-        {args} \\
-        {image}
-ExecStop=/usr/bin/docker stop {container_name}
-ExecStopPost=-/usr/bin/docker rm {container_name}
 
-[Install]
-WantedBy=multi-user.target
-"""
-
+UNIT_TEMPLATE = j2_env.get_template("service.j2")
 UNIT_NAME = "{project}-{service}.docker-compose.service"
-DEPENDENCY_TEMPLATE = "After={unit}\nRequires={unit}"
 
-
-TARGET_TEMPLATE = """[Unit]
-Description=Run {project}
-{requires}
-
-[Install]
-WantedBy=multi-user.target
-{also}
-"""
+TARGET_TEMPLATE = j2_env.get_template("target.j2")
 TARGET_NAME = "{project}.docker-compose.target"
-
-REQUIRES_TEMPLATE = "Requires={unit}"
-ALSO_TEMPLATE = "Also={unit}"
 
 IMG_NAME = "{project}_{service}"
 CTNR_NAME = "{project}_{service}_1"
@@ -198,19 +170,16 @@ def _generate_units(project_name, project):
 
         if len(dependencies) != 0:
             dependencies = [UNIT_NAME.format(project=project_name, service=dep) for dep in dependencies]
-            dependencies = '\n'.join(DEPENDENCY_TEMPLATE.format(unit=dep) for dep in dependencies)
         else:
-            dependencies = DEPENDENCY_TEMPLATE.format(unit='docker.service')
+            dependencies = ['docker.service']
 
-        units[outfile] = UNIT_TEMPLATE.format(project=project_name, service=service_name, \
+        units[outfile] = UNIT_TEMPLATE.render(project=project_name, service=service_name, \
                                                 container_name=container_name, image=image, \
-                                                args=' '.join(args), dependencies=dependencies)
+                                                args=args, dependencies=dependencies) + '\n'
 
-    all_units = set(units.keys())
+    all_units = units.keys()
     target_file = TARGET_NAME.format(project=project_name)
-    also = '\n'.join(ALSO_TEMPLATE.format(unit=u) for u in all_units)
-    requires = '\n'.join(REQUIRES_TEMPLATE.format(unit=u) for u in all_units)
-    units[target_file] = TARGET_TEMPLATE.format(project=project_name, requires=requires, also=also)
+    units[target_file] = TARGET_TEMPLATE.render(project=project_name, units=all_units) + '\n'
 
     return units
 
