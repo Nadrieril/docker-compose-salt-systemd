@@ -193,7 +193,7 @@ if __name__ == '__main__':
 
     _check_host_dependencies(project)
     _combine_project_override(project, override)
-    _mount_volumes_at_path(project, '/srv/%s' % project_name)
+    _mount_volumes_at_path(project, '/srv/docker-volumes/%s' % project_name)
     for filename, content in _generate_units(project_name, project).items():
         with open("out/" + filename, 'w') as f:
             f.write(content)
